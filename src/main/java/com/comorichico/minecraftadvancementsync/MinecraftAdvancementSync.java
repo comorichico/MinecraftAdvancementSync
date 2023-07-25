@@ -30,7 +30,7 @@ public final class MinecraftAdvancementSync extends JavaPlugin implements Listen
         databaseAccess.closeConnection();
     }
 
-    public void setAdvancementForAllPlayers() {
+    public void setAdvancementForAllPlayers(String advancement_key, String criterion_name) {
         // まずWorldを取得します
         World world = Bukkit.getWorld("world"); // worldは対象のワールド名に置き換えてください
 
@@ -38,16 +38,17 @@ public final class MinecraftAdvancementSync extends JavaPlugin implements Listen
             // ワールド内の全てのプレイヤーを取得します
             for (Player player : world.getPlayers()) {
                 // Advancementのキーを指定してAdvancementオブジェクトを取得します
-                Advancement advancement = Bukkit.getAdvancement(NamespacedKey.minecraft("advancement_key")); // advancement_keyは対象のAdvancementのキーに置き換えてください
+                Advancement advancement = Bukkit.getAdvancement(NamespacedKey.minecraft(advancement_key)); // advancement_keyは対象のAdvancementのキーに置き換えてください
 
                 // Advancementがnullでない場合は、そのAdvancementをプレイヤーに設定します
                 if (advancement != null) {
-                    player.getAdvancementProgress(advancement).awardCriteria("criterion_name"); // criterion_nameは対象のCriterionの名前に置き換えてください
+                    player.getAdvancementProgress(advancement).awardCriteria(criterion_name); // criterion_nameは対象のCriterionの名前に置き換えてください
                 }
             }
         }
     }
 
+    // onPlayerAdvancementDoneは使ってないけど一応残してます
     @EventHandler
     public void onPlayerAdvancementDone(PlayerAdvancementDoneEvent event) {
         String playerName = event.getPlayer().getName();
@@ -78,5 +79,7 @@ public final class MinecraftAdvancementSync extends JavaPlugin implements Listen
             criterionData = new PlayerCriterionData(playerName, advancementName, criterionName, true);
             databaseAccess.insertCriterionData(criterionData);
         }
+
+        setAdvancementForAllPlayers(advancementName, criterionName);
     }
 }
