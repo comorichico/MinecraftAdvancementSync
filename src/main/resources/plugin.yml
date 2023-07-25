@@ -1,0 +1,4 @@
+name: MinecraftAdvancementSync
+version: '${project.version}'
+main: com.comorichico.minecraftadvancementsync.MinecraftAdvancementSync
+api-version: '1.20'
