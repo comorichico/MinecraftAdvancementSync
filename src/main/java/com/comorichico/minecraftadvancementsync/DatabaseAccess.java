@@ -1,115 +1,91 @@
 package com.comorichico.minecraftadvancementsync;
 
+import java.io.File;
 import java.sql.*;
 
 public class DatabaseAccess {
 
-    private static final String DB_URL = "jdbc:sqlite:./database.db"; // データベースファイルのパスを指定
-    // テーブル作成のSQL文
-    private static final String CREATE_TABLE_SQL = "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT, age INTEGER)";
+    private static final String pathName = "plugins/MinecraftAdvancementSync";
+    private static final String DB_URL = "jdbc:sqlite:" + pathName + "/database.db"; // データベースファイルのパスを指定
+    // テーブル作成のSQL文（Advancement用）
+    private static final String CREATE_ADVANCEMENTS_TABLE_SQL = "CREATE TABLE IF NOT EXISTS player_advancements (id INTEGER PRIMARY KEY, player_name TEXT, advancement_name TEXT, achieved BOOLEAN)";
 
-    // データ挿入のSQL文
-    private static final String INSERT_DATA_SQL = "INSERT INTO users (name, age) VALUES (?, ?)";
+    // テーブル作成のSQL文（Criterion用）
+    private static final String CREATE_CRITERIA_TABLE_SQL = "CREATE TABLE IF NOT EXISTS player_criteria (id INTEGER PRIMARY KEY, player_name TEXT, advancement_name TEXT, criterion_name TEXT, achieved BOOLEAN)";
 
-    // データ取得のSQL文
-    private static final String QUERY_DATA_SQL = "SELECT * FROM users";
+    // データ取得のSQL文（Advancement用）
+    private static final String QUERY_ADVANCEMENTS_SQL = "SELECT * FROM player_advancements";
 
+    // データ取得のSQL文（Criterion用）
+    private static final String QUERY_CRITERIA_SQL = "SELECT * FROM player_criteria";
+
+    // コネクションを保持する変数
     private Connection connection;
+
     public DatabaseAccess() {
         try {
+            // データベースファイルのディレクトリを取得
+            File dbDirectory = new File(this.pathName);
+
+            // ディレクトリが存在しない場合に作成
+            if (!dbDirectory.exists()) {
+                dbDirectory.mkdirs();
+            }
+
+            // コネクションを初期化
             connection = DriverManager.getConnection(DB_URL);
+            // テーブルを作成
+            createTables();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public static void createTable() {
-        try (Connection connection = DriverManager.getConnection(DB_URL);
-             Statement statement = connection.createStatement()) {
-
-            statement.executeUpdate(CREATE_TABLE_SQL);
-            System.out.println("Table created successfully.");
-
+    // テーブルを作成するメソッド
+    private void createTables() {
+        try {
+            Statement statement = connection.createStatement();
+            // Advancement用のテーブルを作成
+            statement.executeUpdate(CREATE_ADVANCEMENTS_TABLE_SQL);
+            // Criterion用のテーブルを作成
+            statement.executeUpdate(CREATE_CRITERIA_TABLE_SQL);
+            System.out.println("Tables created successfully.");
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    // データを挿入するメソッド（Advancement用）
+    // Advancementデータを挿入するメソッド
     public void insertAdvancementData(PlayerAdvancementData advancementData) {
         String playerName = advancementData.getPlayerName();
         String advancementName = advancementData.getAdvancementName();
         boolean achieved = advancementData.isAchieved();
 
-        // 既存のデータが存在するか確認するクエリ
-        String query = "SELECT * FROM player_advancements WHERE player_name=? AND advancement_name=?";
-        try (PreparedStatement checkStmt = connection.prepareStatement(query)) {
-            checkStmt.setString(1, playerName);
-            checkStmt.setString(2, advancementName);
-            ResultSet resultSet = checkStmt.executeQuery();
-
-            // 既存のデータが存在しない場合のみ新しいデータを挿入する
-            if (!resultSet.next()) {
-                String insertSql = "INSERT INTO player_advancements (player_name, advancement_name, achieved) VALUES (?, ?, ?)";
-                try (PreparedStatement insertStmt = connection.prepareStatement(insertSql)) {
-                    insertStmt.setString(1, playerName);
-                    insertStmt.setString(2, advancementName);
-                    insertStmt.setBoolean(3, achieved);
-                    insertStmt.executeUpdate();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+        String insertSql = "INSERT INTO player_advancements (player_name, advancement_name, achieved) VALUES (?, ?, ?)";
+        try (PreparedStatement insertStmt = connection.prepareStatement(insertSql)) {
+            insertStmt.setString(1, playerName);
+            insertStmt.setString(2, advancementName);
+            insertStmt.setBoolean(3, achieved);
+            insertStmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    // データを挿入するメソッド（Criterion用）
+    // Criterionデータを挿入するメソッド
     public void insertCriterionData(PlayerCriterionData criterionData) {
         String playerName = criterionData.getPlayerName();
         String advancementName = criterionData.getAdvancementName();
         String criterionName = criterionData.getCriterionName();
         boolean achieved = criterionData.isAchieved();
 
-        // 既存のデータが存在するか確認するクエリ
-        String query = "SELECT * FROM player_criteria WHERE player_name=? AND advancement_name=? AND criterion_name=?";
-        try (PreparedStatement checkStmt = connection.prepareStatement(query)) {
-            checkStmt.setString(1, playerName);
-            checkStmt.setString(2, advancementName);
-            checkStmt.setString(3, criterionName);
-            ResultSet resultSet = checkStmt.executeQuery();
-
-            // 既存のデータが存在しない場合のみ新しいデータを挿入する
-            if (!resultSet.next()) {
-                String insertSql = "INSERT INTO player_criteria (player_name, advancement_name, criterion_name, achieved) VALUES (?, ?, ?, ?)";
-                try (PreparedStatement insertStmt = connection.prepareStatement(insertSql)) {
-                    insertStmt.setString(1, playerName);
-                    insertStmt.setString(2, advancementName);
-                    insertStmt.setString(3, criterionName);
-                    insertStmt.setBoolean(4, achieved);
-                    insertStmt.executeUpdate();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void queryData() {
-        try (Connection connection = DriverManager.getConnection(DB_URL);
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(QUERY_DATA_SQL)) {
-
-            while (resultSet.next()) {
-                int id = resultSet.getInt("id");
-                String name = resultSet.getString("name");
-                int age = resultSet.getInt("age");
-                System.out.println("ID: " + id + ", Name: " + name + ", Age: " + age);
-            }
-
+        String insertSql = "INSERT INTO player_criteria (player_name, advancement_name, criterion_name, achieved) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement insertStmt = connection.prepareStatement(insertSql)) {
+            insertStmt.setString(1, playerName);
+            insertStmt.setString(2, advancementName);
+            insertStmt.setString(3, criterionName);
+            insertStmt.setBoolean(4, achieved);
+            insertStmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
