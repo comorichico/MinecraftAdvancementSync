@@ -16,6 +16,7 @@ public class AdvancementData {
     public AdvancementData(String fileName) {
         // コンストラクタでファイルパスを設定
         this.fileName = fileName;
+        this.readJson();
     }
 
     // Setter メソッド
@@ -38,7 +39,7 @@ public class AdvancementData {
     }
 
     // jsonファイルを読み込むメソッド
-    public void readJson() throws IOException {
+    public void readJson() {
         Gson gson = new Gson();
 
         InputStreamReader reader = new InputStreamReader(
