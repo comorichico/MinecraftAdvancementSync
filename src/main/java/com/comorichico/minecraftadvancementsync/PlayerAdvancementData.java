@@ -1,13 +1,19 @@
 package com.comorichico.minecraftadvancementsync;
 
 public class PlayerAdvancementData {
-    private String playerName;
-    private String advancementName;
-    private boolean achieved;
+    private final String playerName;
+    private final String title;
+    private final String titleKey;
+    private final String description;
+    private final String descriptionKey;
+    private final boolean achieved;
 
-    public PlayerAdvancementData(String playerName, String advancementName, boolean achieved) {
+    public PlayerAdvancementData(String playerName, String title, String titleKey, String description, String descriptionKey, boolean achieved) {
         this.playerName = playerName;
-        this.advancementName = advancementName;
+        this.title = title;
+        this.titleKey = titleKey;
+        this.description = description;
+        this.descriptionKey = descriptionKey;
         this.achieved = achieved;
     }
 
@@ -15,11 +21,12 @@ public class PlayerAdvancementData {
         return playerName;
     }
 
-    public String getAdvancementName() {
-        return advancementName;
+    public String getTitle() {
+        return title;
     }
 
-    public boolean isAchieved() {
-        return achieved;
+    public String getDescription() {
+        return description;
     }
+
 }

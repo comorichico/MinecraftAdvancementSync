@@ -1,10 +1,10 @@
 package com.comorichico.minecraftadvancementsync;
 
 public class PlayerCriterionData {
-    private String playerName;
-    private String advancementName;
-    private String criterionName;
-    private boolean achieved;
+    private final String playerName;
+    private final String advancementName;
+    private final String criterionName;
+    private final boolean achieved;
 
     public PlayerCriterionData(String playerName, String advancementName, String criterionName, boolean achieved) {
         this.playerName = playerName;

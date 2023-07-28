@@ -4,34 +4,48 @@ import org.apache.commons.net.ftp.FTPSClient;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.logging.Level;
+
+import org.bukkit.plugin.java.JavaPlugin;
+import java.util.Properties;
 
 public class FTPSUploader {
 
-    public void uploadFile(String absolutePath) {
-        // ローカルのindex.htmlファイルのパス
-        String localFilePath = absolutePath + File.separator + "index.html";
-        // アップロード先のファイルパス
-        String remoteFilePath = "/mc/index.html";
-        // FTPサーバーの接続情報
-        String server = "domain";
-        String username = "user";
-        String password = "password";
+    private final JavaPlugin plugin;
+    FTPSUploader(JavaPlugin plugin){
+        this.plugin = plugin;
+    }
+    public void uploadFile(String localFilePath, String remoteFilePath) {
+
+        // .envの読み込み
+        File dataFolder = plugin.getDataFolder();
+        String absolutePath = dataFolder.getAbsolutePath();
+        String envPath = absolutePath + File.separator + ".env";
+        Properties prop = new Properties();
+        try (FileInputStream input = new FileInputStream(envPath)) {
+            prop.load(input);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return;
+        }
+        String server = prop.getProperty("server");
+        String username = prop.getProperty("username");
+        String password = prop.getProperty("password");
 
         FTPSClient ftpsClient = new FTPSClient();
 
         try {
             // FTPサーバーに接続
             ftpsClient.connect(server);
-            int reply = ftpsClient.getReplyCode();
             if (!ftpsClient.isConnected()) {
-                System.err.println("FTPサーバーへの接続に失敗しました。");
+                plugin.getLogger().log(Level.INFO,"FTPサーバーへの接続に失敗しました。");
                 return;
             }
 
             // ログイン
             if (!ftpsClient.login(username, password)) {
                 ftpsClient.logout();
-                System.err.println("FTPサーバーへのログインに失敗しました。");
+                plugin.getLogger().log(Level.INFO,"FTPサーバーへのログインに失敗しました。");
                 return;
             }
 
@@ -46,9 +60,9 @@ public class FTPSUploader {
 
             // ファイルをアップロード
             if (ftpsClient.storeFile(remoteFilePath, inputStream)) {
-                System.out.println("ファイルのアップロードが成功しました。");
+                plugin.getLogger().log(Level.INFO,"ファイルのアップロードが成功しました。");
             } else {
-                System.err.println("ファイルのアップロードに失敗しました。");
+                plugin.getLogger().log(Level.INFO,"ファイルのアップロードに失敗しました。");
             }
 
             // ストリームとFTPクライアントを閉じる
@@ -58,7 +72,7 @@ public class FTPSUploader {
 
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("例外が発生しました。");
+            plugin.getLogger().log(Level.INFO,"例外が発生しました。");
         }
     }
 }
