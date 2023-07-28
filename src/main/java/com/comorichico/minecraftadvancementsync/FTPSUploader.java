@@ -21,17 +21,6 @@ public class FTPSUploader {
         this.plugin = plugin;
     }
 
-    // フォルダを作成するメソッド
-    private boolean createRemoteFolder(FTPSClient ftpsClient, String remoteFolderPath) throws IOException {
-        if (ftpsClient.makeDirectory(remoteFolderPath)) {
-            plugin.getLogger().log(Level.INFO, "フォルダの作成に成功しました: " + remoteFolderPath);
-            return true;
-        } else {
-            plugin.getLogger().log(Level.INFO, "フォルダの作成に失敗しました: " + remoteFolderPath);
-            return false;
-        }
-    }
-
     public void uploadFile(@NotNull CommandSender sender) {
 
         // .envの読み込み
