@@ -9,6 +9,8 @@ pluginsのフォルダに入れるだけ
 
 pluginsにMinecraftAdvancementSyncというフォルダが生成されてその中に.envファイルが生成されているはずです
 
-serverにWEBサーバーのURL（ドメイン）、usernameに接続に使うユーザー名、passwordにFTPのパスワードを設定してください
+serverにFTPサーバーの接続に使うドメイン、usernameに接続に使うユーザー名、passwordにFTPのパスワードを設定してください
+
+リモートのfolderはデフォルトで/masになっていますが好きに変えてもいいです、ほかのデータが上書きされないように注意してください。
 
 .envの設定が間違っていなければゲーム内で「/mas」とコマンドを打てばサーバーにアップロードされるはずです
