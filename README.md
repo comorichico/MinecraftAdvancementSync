@@ -1,2 +1,14 @@
 # MinecraftAdvancementSync
 マインクラフトの進捗を全員で同期（共有）させるプラグイン
+
+使い方
+
+pluginsのフォルダに入れるだけ
+
+・WEBサーバーで進捗を見れるようにする場合
+
+pluginsにMinecraftAdvancementSyncというフォルダが生成されてその中に.envファイルが生成されているはずです
+
+serverにWEBサーバーのURL（ドメイン）、usernameに接続に使うユーザー名、passwordにFTPのパスワードを設定してください
+
+.envの設定が間違っていなければゲーム内で「/mas」とコマンドを打てばサーバーにアップロードされるはずです
