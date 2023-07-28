@@ -98,7 +98,6 @@ public class FTPSUploader {
             // ファイルをアップロード
             if (ftpsClient.storeFile(remoteFilePath, inputStream)) {
                 plugin.getLogger().log(Level.INFO,"ファイルのアップロードが成功しました。");
-                sender.sendMessage(Component.text("https://comorichico.com/mas/", NamedTextColor.GREEN));
             } else {
                 plugin.getLogger().log(Level.INFO,"ファイルのアップロードに失敗しました。");
             }
