@@ -65,6 +65,7 @@ public final class MinecraftAdvancementSync extends JavaPlugin implements Listen
             writer.write("server=domain\n");
             writer.write("username=user\n");
             writer.write("password=password\n");
+            writer.write("folder=/mas\n");
             writer.close();
             getLogger().log(Level.INFO,".envファイルが作成されました。");
         } catch (IOException e) {
@@ -83,25 +84,12 @@ public final class MinecraftAdvancementSync extends JavaPlugin implements Listen
         // コマンドの処理
         if (command.getName().equalsIgnoreCase("mas")) {
 
-            // 絶対パスの生成
-            File dataFolder = getDataFolder();
-            String absolutePath = dataFolder.getAbsolutePath();
+            // htmlに出力
+            databaseAccess.outputCompletedAdvancementsToHTML();
 
-            // index.htmlに出力
-            databaseAccess.outputCompletedAdvancementsToHTML(absolutePath);
-
-            // index.htmlをサーバーにアップロード
+            // htmlをサーバーにアップロード
             FTPSUploader ftpsUploader = new FTPSUploader(this);
-
-            // 達成済みのhtml
-            String localFilePath = absolutePath + File.separator + "index.html";
-            String remoteFilePath = "/mc/index.html";
-            ftpsUploader.uploadFile(localFilePath, remoteFilePath);
-
-            // 未達成のhtml
-            String localFilePath2 = absolutePath + File.separator + "index2.html";
-            String remoteFilePath2 = "/mc/index2.html";
-            ftpsUploader.uploadFile(localFilePath2, remoteFilePath2);
+            ftpsUploader.uploadFile(sender);
 
             return true;
         }

@@ -1,4 +1,6 @@
 package com.comorichico.minecraftadvancementsync;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.apache.commons.net.ftp.FTPSClient;
 
 import java.io.File;
@@ -6,7 +8,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.logging.Level;
 
+import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Properties;
 
 public class FTPSUploader {
@@ -15,7 +20,19 @@ public class FTPSUploader {
     FTPSUploader(JavaPlugin plugin){
         this.plugin = plugin;
     }
-    public void uploadFile(String localFilePath, String remoteFilePath) {
+
+    // フォルダを作成するメソッド
+    private boolean createRemoteFolder(FTPSClient ftpsClient, String remoteFolderPath) throws IOException {
+        if (ftpsClient.makeDirectory(remoteFolderPath)) {
+            plugin.getLogger().log(Level.INFO, "フォルダの作成に成功しました: " + remoteFolderPath);
+            return true;
+        } else {
+            plugin.getLogger().log(Level.INFO, "フォルダの作成に失敗しました: " + remoteFolderPath);
+            return false;
+        }
+    }
+
+    public void uploadFile(@NotNull CommandSender sender) {
 
         // .envの読み込み
         File dataFolder = plugin.getDataFolder();
@@ -31,6 +48,18 @@ public class FTPSUploader {
         String server = prop.getProperty("server");
         String username = prop.getProperty("username");
         String password = prop.getProperty("password");
+        String folder = prop.getProperty("folder");
+
+        if(server.equals("domain")){
+            sender.sendMessage(Component.text("masコマンドを打ちましたが.envの中身を編集していないのではないですか？「plugins/MinecraftAdvancementSync/.env」を編集してからmasコマンドをもう一度お試しください。", NamedTextColor.GREEN));
+            return;
+        }
+
+        String localFilePath = absolutePath + File.separator + "index.html";
+        String remoteFilePath = folder + "/index.html";
+
+        String localFilePath2 = absolutePath + File.separator + "index2.html";
+        String remoteFilePath2 = folder + "/index2.html";
 
         FTPSClient ftpsClient = new FTPSClient();
 
@@ -58,8 +87,28 @@ public class FTPSUploader {
             // ローカルファイルをストリームで開く
             FileInputStream inputStream = new FileInputStream(localFilePath);
 
+            // フォルダをアップロードする前に作成する
+            if (ftpsClient.makeDirectory(folder)) {
+                plugin.getLogger().log(Level.INFO, "フォルダの作成に成功しました: " + folder);
+            } else {
+                plugin.getLogger().log(Level.INFO, "フォルダの作成に失敗しました: " + folder);
+            }
+
+            plugin.getLogger().log(Level.INFO, "remoteFilePath: " + remoteFilePath);
             // ファイルをアップロード
             if (ftpsClient.storeFile(remoteFilePath, inputStream)) {
+                plugin.getLogger().log(Level.INFO,"ファイルのアップロードが成功しました。");
+                sender.sendMessage(Component.text("https://comorichico.com/mas/", NamedTextColor.GREEN));
+            } else {
+                plugin.getLogger().log(Level.INFO,"ファイルのアップロードに失敗しました。");
+            }
+
+            // ローカルファイルをストリームで開く
+            FileInputStream inputStream2 = new FileInputStream(localFilePath2);
+
+            plugin.getLogger().log(Level.INFO, "remoteFilePath2: " + remoteFilePath2);
+            // ファイルをアップロード
+            if (ftpsClient.storeFile(remoteFilePath2, inputStream2)) {
                 plugin.getLogger().log(Level.INFO,"ファイルのアップロードが成功しました。");
             } else {
                 plugin.getLogger().log(Level.INFO,"ファイルのアップロードに失敗しました。");
@@ -71,8 +120,7 @@ public class FTPSUploader {
             ftpsClient.disconnect();
 
         } catch (IOException e) {
-            e.printStackTrace();
-            plugin.getLogger().log(Level.INFO,"例外が発生しました。");
+            plugin.getLogger().log(Level.INFO,"ファイルのアップロードエラーです。「plugins/MinecraftAdvancementSync/.env」ファイルを修正してください。");
         }
     }
 }

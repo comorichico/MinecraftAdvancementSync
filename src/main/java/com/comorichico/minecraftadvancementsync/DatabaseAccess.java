@@ -90,22 +90,31 @@ public class DatabaseAccess {
 
                 PreparedStatement statement = connection.prepareStatement(INSERT_ADVANCEMENT_SQL);
 
+
                 // keyがadvancementsからはじまりtitleで終わるものとdescriptionで終わるものの対になるデータを取得する
                 for (String key : jsonObject.keySet()) {
                     if (key.startsWith("advancements") && key.endsWith("title")) {
+
+                        // "title_key" がテーブル内に既に存在するかを確認
+                        PreparedStatement checkStatement = connection.prepareStatement("SELECT title_key FROM player_advancements WHERE title_key = ?");
+                        checkStatement.setString(1, key);
+                        ResultSet checkResultSet = checkStatement.executeQuery();
+
                         String playerName = "None";
                         boolean achieved = false;
                         String title = jsonObject.get(key).getAsString();
                         String descriptionKey = key.replace("title", "description");
                         String description = jsonObject.get(descriptionKey).getAsString();
-
-                        statement.setString(1, playerName);
-                        statement.setBoolean(2, achieved);
-                        statement.setString(3, title);
-                        statement.setString(4, key);
-                        statement.setString(5, description);
-                        statement.setString(6, descriptionKey);
-                        statement.addBatch(); // バッチ処理に追加
+                        if (!checkResultSet.next()) {
+                            // "title_key" がテーブル内に存在しない場合のみ新しい行を挿入
+                            statement.setString(1, playerName);
+                            statement.setBoolean(2, achieved);
+                            statement.setString(3, title);
+                            statement.setString(4, key);
+                            statement.setString(5, description);
+                            statement.setString(6, descriptionKey);
+                            statement.addBatch(); // バッチ処理に追加
+                        }
                     }
                 }
                 statement.executeBatch(); // バッチ処理を実行
@@ -168,7 +177,11 @@ public class DatabaseAccess {
     }
 
     // データをHTMLファイルに出力するメソッド
-    public void outputCompletedAdvancementsToHTML(String absolutePath) {
+    public void outputCompletedAdvancementsToHTML() {
+        // 絶対パスの生成
+        File dataFolder = plugin.getDataFolder();
+        String absolutePath = dataFolder.getAbsolutePath();
+
         // 達成済みのデータ
         List<PlayerAdvancementData> completedAdvancementDataList = getCompletedAdvancementsDataFromDatabase();
         File completedFile = new File(absolutePath + File.separator + "index.html");
