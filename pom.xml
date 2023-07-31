@@ -6,7 +6,7 @@
 
     <groupId>com.comorichico</groupId>
     <artifactId>MinecraftAdvancementSync</artifactId>
-    <version>20230725</version>
+    <version>20230731</version>
     <packaging>jar</packaging>
 
     <name>MinecraftAdvancementSync</name>

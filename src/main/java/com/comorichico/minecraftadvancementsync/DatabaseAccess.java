@@ -359,13 +359,14 @@ public class DatabaseAccess {
 
     // title_keyが指定された値のレコードのachievedをtrueに更新するメソッド
     private void updatePlayerAdvancements(String titleKey, String playerName) throws SQLException {
-        String updateSql = "UPDATE player_advancements SET achieved = ?, player_name = ? WHERE title_key = ?";
+        String updateSql = "UPDATE player_advancements SET achieved = ?, player_name = ? WHERE title_key = ? and player_name = ?";
         try (PreparedStatement statement = connection.prepareStatement(updateSql)) {
             // 指定されたtitle_keyを持つレコードがあればachievedをtrueに更新
             boolean achieved = true;
             statement.setBoolean(1, achieved);
             statement.setString(2, playerName);
             statement.setString(3, titleKey);
+            statement.setString(4, "None");
 
             int updatedRows = statement.executeUpdate();
 
@@ -506,11 +507,6 @@ public class DatabaseAccess {
         updatePlayerCriteria(advancementKey, criterionName, playerName);
 
         setAdvancementForAllPlayers(advancementKey, criterionName);
-
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            player.sendMessage(Component.text(event.getPlayer().getName() + "が進捗[" + advancementName
-                    + "の[" + criterionName + "]条件を達成しました。", NamedTextColor.GREEN));
-        }
     }
 
     // 達成済みデータをデータベースと同期する
