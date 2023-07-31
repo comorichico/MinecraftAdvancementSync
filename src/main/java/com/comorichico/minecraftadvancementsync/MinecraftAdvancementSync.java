@@ -7,6 +7,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
@@ -95,6 +96,10 @@ public final class MinecraftAdvancementSync extends JavaPlugin implements Listen
         }
         return false;
     }
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) throws SQLException {
+        databaseAccess.onPlayerJoin(event);
+    }
 
     @EventHandler
     public void onPlayerAdvancementDone(PlayerAdvancementDoneEvent event) throws SQLException {
@@ -102,7 +107,7 @@ public final class MinecraftAdvancementSync extends JavaPlugin implements Listen
     }
 
     @EventHandler
-    public void onPlayerAdvancementCriterionGrant(PlayerAdvancementCriterionGrantEvent event) {
+    public void onPlayerAdvancementCriterionGrant(PlayerAdvancementCriterionGrantEvent event) throws SQLException {
         databaseAccess.onPlayerAdvancementCriterionGrant(event);
     }
 }

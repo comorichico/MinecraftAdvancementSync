@@ -50,6 +50,12 @@ public class FTPSUploader {
         String localFilePath2 = absolutePath + File.separator + "index2.html";
         String remoteFilePath2 = folder + "/index2.html";
 
+        String localFilePath3 = absolutePath + File.separator + "index3.html";
+        String remoteFilePath3 = folder + "/index3.html";
+
+        String localFilePath4 = absolutePath + File.separator + "index4.html";
+        String remoteFilePath4 = folder + "/index4.html";
+
         FTPSClient ftpsClient = new FTPSClient();
 
         try {
@@ -73,8 +79,7 @@ public class FTPSUploader {
             // PASVモードを有効化（必要に応じて）
             ftpsClient.enterLocalPassiveMode();
 
-            // ローカルファイルをストリームで開く
-            FileInputStream inputStream = new FileInputStream(localFilePath);
+
 
             // フォルダをアップロードする前に作成する
             if (ftpsClient.makeDirectory(folder)) {
@@ -83,7 +88,8 @@ public class FTPSUploader {
                 plugin.getLogger().log(Level.INFO, "フォルダの作成に失敗しました: " + folder);
             }
 
-            plugin.getLogger().log(Level.INFO, "remoteFilePath: " + remoteFilePath);
+            // ローカルファイルをストリームで開く
+            FileInputStream inputStream = new FileInputStream(localFilePath);
             // ファイルをアップロード
             if (ftpsClient.storeFile(remoteFilePath, inputStream)) {
                 plugin.getLogger().log(Level.INFO,"ファイルのアップロードが成功しました。");
@@ -93,10 +99,26 @@ public class FTPSUploader {
 
             // ローカルファイルをストリームで開く
             FileInputStream inputStream2 = new FileInputStream(localFilePath2);
-
-            plugin.getLogger().log(Level.INFO, "remoteFilePath2: " + remoteFilePath2);
             // ファイルをアップロード
             if (ftpsClient.storeFile(remoteFilePath2, inputStream2)) {
+                plugin.getLogger().log(Level.INFO,"ファイルのアップロードが成功しました。");
+            } else {
+                plugin.getLogger().log(Level.INFO,"ファイルのアップロードに失敗しました。");
+            }
+
+            // ローカルファイルをストリームで開く
+            FileInputStream inputStream3 = new FileInputStream(localFilePath3);
+            // ファイルをアップロード
+            if (ftpsClient.storeFile(remoteFilePath3, inputStream3)) {
+                plugin.getLogger().log(Level.INFO,"ファイルのアップロードが成功しました。");
+            } else {
+                plugin.getLogger().log(Level.INFO,"ファイルのアップロードに失敗しました。");
+            }
+
+            // ローカルファイルをストリームで開く
+            FileInputStream inputStream4 = new FileInputStream(localFilePath4);
+            // ファイルをアップロード
+            if (ftpsClient.storeFile(remoteFilePath4, inputStream4)) {
                 plugin.getLogger().log(Level.INFO,"ファイルのアップロードが成功しました。");
             } else {
                 plugin.getLogger().log(Level.INFO,"ファイルのアップロードに失敗しました。");
